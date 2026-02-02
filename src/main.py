@@ -106,7 +106,7 @@ async def send_telegram_notification(text: str, env) -> bool:
 
 
 class Default(WorkerEntrypoint):
-    async def fetch(self, request):
+    async def on_fetch(self, request):
         try:
             # Asegurar string para urlparse (request.url puede ser JsProxy en Workers Python)
             url_str = str(getattr(request, "url", "") or "")
@@ -143,15 +143,15 @@ class Default(WorkerEntrypoint):
                     success, tema, err = await _run_publish_flow(env)
                     if success:
                         msg = f'✅ Post publicado con éxito sobre: <b>{_escape_html(tema)}</b>'
-                        await send_telegram_notification(msg, env)
+                        telegram_ok = await send_telegram_notification(msg, env)
                         return Response(
-                            json.dumps({"ok": True, "tema": tema}),
+                            json.dumps({"ok": True, "tema": tema, "telegram_sent": telegram_ok}),
                             headers={"Content-Type": "application/json"},
                         )
                     msg = f"❌ Error en el Bot de LinkedIn: {_escape_html(err or 'Unknown')}"
-                    await send_telegram_notification(msg, env)
+                    telegram_ok = await send_telegram_notification(msg, env)
                     return Response(
-                        json.dumps({"ok": False, "error": err}),
+                        json.dumps({"ok": False, "error": err, "telegram_sent": telegram_ok}),
                         status=500,
                         headers={"Content-Type": "application/json"},
                     )
@@ -172,7 +172,7 @@ class Default(WorkerEntrypoint):
                 headers={"Content-Type": "text/plain; charset=utf-8"},
             )
 
-    async def scheduled(self, controller, env, ctx):
+    async def on_scheduled(self, controller, env, ctx):
         try:
             success, tema, err = await _run_publish_flow(env)
             if success:

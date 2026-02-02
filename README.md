@@ -83,6 +83,11 @@ Las instrucciones del agente están en `src/gemini.py`; puedes editarlas para aj
 
 Se usa `parse_mode="HTML"` en la API de Telegram para que el título se vea en negrita.
 
+**Si no llega el mensaje de Telegram:**  
+1. Comprueba que los secrets **TELEGRAM_BOT_TOKEN** y **TELEGRAM_CHAT_ID** estén configurados en el Worker (Cloudflare Dashboard → Workers & Pages → autoposts → Settings → Variables and Secrets, o `wrangler secret put TELEGRAM_BOT_TOKEN` y `wrangler secret put TELEGRAM_CHAT_ID`).  
+2. Al llamar a `/run`, la respuesta incluye `"telegram_sent": true/false`. Si es `false`, el token o el chat_id son incorrectos o faltan.  
+3. Verifica el token con @BotFather y el chat_id con `https://api.telegram.org/bot<TOKEN>/getUpdates` (después de escribir algo al bot).
+
 ## Cron cada 3 horas
 
 - **Opción 1 – Solo Cloudflare:** En `wrangler.toml` está definido el trigger `0 */3 * * *` (cada 3 horas en punto, UTC). No necesitas GitHub Actions.
