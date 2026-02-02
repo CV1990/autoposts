@@ -1,0 +1,27 @@
+# AutoPosts - Bot de contenido técnico para Facebook e Instagram
+# https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "autoposts"
+main = "src/main.py"
+compatibility_date = "2024-09-09"
+compatibility_flags = ["python_workers"]
+
+# Ejecutar cada 3 horas (minuto 0 de las 0, 3, 6, 9, 12, 15, 18, 21)
+[triggers]
+crons = ["0 */3 * * *"]
+
+# Workers AI para generar imágenes (Stable Diffusion XL Lightning)
+[ai]
+binding = "AI"
+
+# KV para almacenar temporalmente la imagen generada (Instagram necesita URL pública)
+[[kv_namespaces]]
+binding = "POST_IMAGES"
+id = "129bdfc473224f74b904fccae72954ff"
+
+# Variables de entorno (nunca poner claves aquí; usar wrangler secret)
+# WORKER_PUBLIC_URL: URL pública del Worker (ej. https://autoposts.<account>.workers.dev)
+# Se configuran como secrets: GEMINI_API_KEY, META_PAGE_ACCESS_TOKEN, META_PAGE_ID,
+# INSTAGRAM_ACCOUNT_ID, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, WORKER_PUBLIC_URL
+# Opcional para trigger desde GitHub Actions: CRON_SECRET
+# WORKER_PUBLIC_URL y el resto se configuran como secrets (wrangler secret put ...)

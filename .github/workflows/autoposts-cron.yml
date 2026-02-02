@@ -1,0 +1,36 @@
+# Dispara el bot AutoPosts cada 3 horas llamando al Worker en Cloudflare.
+# Configura en GitHub: Settings > Secrets and variables > Actions:
+#   WORKER_RUN_URL: URL del Worker + /run (ej. https://autoposts.<account>.workers.dev/run)
+#   CRON_SECRET: mismo valor que el secret CRON_SECRET del Worker (para autorizar la llamada)
+
+name: AutoPosts Cron
+
+on:
+  schedule:
+    # Cada 3 horas (minuto 0): 00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00 UTC
+    - cron: "0 */3 * * *"
+  workflow_dispatch: # Permite ejecutar manualmente desde la pestaña Actions
+
+jobs:
+  trigger-worker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Llamar al Worker AutoPosts
+        run: |
+          URL="${{ secrets.WORKER_RUN_URL }}"
+          SECRET="${{ secrets.CRON_SECRET }}"
+          if [ -z "$URL" ] || [ -z "$SECRET" ]; then
+            echo "Faltan WORKER_RUN_URL o CRON_SECRET en los secrets del repositorio."
+            exit 1
+          fi
+          RESP=$(curl -sS -w "\n%{http_code}" "${URL}?secret=${SECRET}")
+          HTTP_CODE=$(echo "$RESP" | tail -n1)
+          BODY=$(echo "$RESP" | sed '$d')
+          echo "HTTP $HTTP_CODE"
+          echo "$BODY"
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "Worker ejecutado correctamente."
+          else
+            echo "Worker devolvió error."
+            exit 1
+          fi

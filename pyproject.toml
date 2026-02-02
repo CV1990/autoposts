@@ -1,0 +1,11 @@
+[project]
+name = "autoposts"
+version = "0.1.0"
+description = "Bot de contenido técnico para Facebook e Instagram en Cloudflare Workers (Python)"
+readme = "README.md"
+requires-python = ">=3.12"
+
+[dependency-groups]
+dev = [
+    "workers-py",
+]

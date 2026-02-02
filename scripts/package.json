@@ -1,0 +1,9 @@
+{
+  "name": "autoposts-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Scripts para generar posts (Gemini) con retry ante 429",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0"
+  }
+}

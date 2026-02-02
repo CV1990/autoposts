@@ -1,0 +1,40 @@
+# Despliega el Worker AutoPosts a Cloudflare desde Linux (evita el problema de Pyodide en Windows).
+# Configura en GitHub: Settings > Secrets and variables > Actions:
+#   CLOUDFLARE_API_TOKEN: token de API de Cloudflare (My Profile > API Tokens > Create Token, plantilla "Edit Cloudflare Workers")
+#   CLOUDFLARE_ACCOUNT_ID: ID de tu cuenta (dashboard, URL o Overview)
+
+name: Deploy Worker
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Wrangler
+        run: npm install
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Install Python deps
+        run: uv sync
+
+      - name: Deploy Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: uv run pywrangler deploy
