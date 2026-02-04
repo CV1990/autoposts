@@ -1,15 +1,13 @@
-# Dispara el bot AutoPosts cada 3 horas llamando al Worker en Cloudflare.
+# Llama al Worker AutoPosts (solo manual; sin cron automático).
 # Configura en GitHub: Settings > Secrets and variables > Actions:
 #   WORKER_RUN_URL: URL del Worker + /run (ej. https://autoposts.<account>.workers.dev/run)
 #   CRON_SECRET: mismo valor que el secret CRON_SECRET del Worker (para autorizar la llamada)
+# Para ejecutar: pestaña Actions → AutoPosts Cron → Run workflow
 
 name: AutoPosts Cron
 
 on:
-  schedule:
-    # Cada 3 horas (minuto 0): 00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00 UTC
-    - cron: "0 */3 * * *"
-  workflow_dispatch: # Permite ejecutar manualmente desde la pestaña Actions
+  workflow_dispatch: # Solo ejecución manual desde la pestaña Actions
 
 jobs:
   trigger-worker:
